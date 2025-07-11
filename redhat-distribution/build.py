@@ -56,6 +56,16 @@ def get_dependencies():
                 else:
                     standard_deps.append(" ".join(parts))
 
+        # HACK ALERT: We need to pin the opentelemetry-sdk and
+        # opentelemetry-exporter-otlp-proto-http
+        # This is a temporary fix until we can upgrade to llama-stack 0.2.15
+        # See https://github.com/meta-llama/llama-stack/pull/2722
+        standard_deps = [dep.replace("opentelemetry-sdk", "opentelemetry-sdk>=1.30.0") for dep in standard_deps]
+        standard_deps = [
+            dep.replace("opentelemetry-exporter-otlp-proto-http", "opentelemetry-exporter-otlp-proto-http>=1.30.0")
+            for dep in standard_deps
+        ]
+
         # Combine all dependencies in specific order
         all_deps = []
         all_deps.extend(sorted(standard_deps))  # Regular pip installs first

@@ -124,7 +124,7 @@ repos:
         always_run: true
         files: ^redhat-distribution/.*$
         additional_dependencies:
-          - llama-stack==0.2.10
+          - llama-stack==0.2.14
 
 
 ci:

@@ -22,12 +22,12 @@ RUN pip install \
     nltk \
     numpy \
     openai \
-    opentelemetry-exporter-otlp-proto-http \
-    opentelemetry-sdk \
+    opentelemetry-exporter-otlp-proto-http>=1.30.0 \
+    opentelemetry-sdk>=1.30.0 \
     pandas \
     pillow \
     psycopg2-binary \
-    pymilvus \
+    pymilvus>=2.4.10 \
     pymongo \
     pypdf \
     redis \
