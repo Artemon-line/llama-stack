@@ -314,7 +314,13 @@ class VertexAIInferenceAdapter(NeedsRequestProviderData, BaseModel):
                 continue
 
             name = getattr(model, "name", "") or ""
-            model_id = name.removeprefix("models/")
+            # Vertex AI returns names like "publishers/google/models/gemini-2.0-flash"
+            # while Gemini API returns "models/gemini-2.0-flash". Extract the model
+            # name after the last "models/" segment to handle both formats.
+            if "models/" in name:
+                model_id = name.split("models/")[-1]
+            else:
+                model_id = name
             if not model_id:
                 continue
             result.append(model_id)
