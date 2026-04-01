@@ -1104,6 +1104,17 @@ async def _patched_genai_method(original_method, self, endpoint, *args, **kwargs
     if test_id and not get_test_context():
         context_token = set_test_context(test_id)
 
+    try:
+        return await _genai_record_replay(original_method, self, endpoint, mode, storage, *args, **kwargs)
+    finally:
+        if context_token:
+            from llama_stack.core.testing_context import reset_test_context
+
+            reset_test_context(context_token)
+
+
+async def _genai_record_replay(original_method, self, endpoint, mode, storage, *args, **kwargs):
+    """Core record/replay logic for google-genai methods."""
     from google.genai import types as genai_types
 
     # Serialize request parameters
@@ -1217,12 +1228,6 @@ async def _patched_genai_method(original_method, self, endpoint, *args, **kwargs
             return response
 
     raise AssertionError(f"Invalid mode: {mode}")
-
-    # This line is unreachable but ensures cleanup in case of future refactoring
-    if context_token:
-        from llama_stack.core.testing_context import reset_test_context
-
-        reset_test_context(context_token)
 
 
 def patch_inference_clients():
