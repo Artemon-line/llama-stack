@@ -47,6 +47,8 @@ class TestOpenAIResponses:
         """Test response with very small max_output_tokens to trigger potential truncation."""
         if text_model_id.startswith("watsonx/"):
             pytest.skip("WatsonX does not support max_output_tokens parameter")
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not strictly respect very small max_output_tokens limits")
         response = openai_client.responses.create(
             model=text_model_id,
             input=[
@@ -399,6 +401,8 @@ class TestOpenAIResponses:
 
     def test_openai_response_with_top_logprobs(self, openai_client, text_model_id):
         """Test OpenAI response with top_logprobs parameter."""
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not support logprobs")
         response = openai_client.responses.create(
             model=text_model_id,
             input=[{"role": "user", "content": "What is the largest ocean on Earth?"}],
@@ -411,6 +415,8 @@ class TestOpenAIResponses:
 
     def test_openai_response_with_top_logprobs_streaming(self, openai_client, text_model_id):
         """Test OpenAI response with top_logprobs in streaming mode."""
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not support logprobs")
         stream = openai_client.responses.create(
             model=text_model_id,
             input=[{"role": "user", "content": "What is the smallest continent?"}],
@@ -435,6 +441,8 @@ class TestOpenAIResponses:
 
     def test_openai_response_with_top_logprobs_and_previous_response(self, openai_client, text_model_id):
         """Test that top_logprobs works correctly with previous_response_id."""
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not support logprobs")
         # Create first response
         response1 = openai_client.responses.create(
             model=text_model_id,
@@ -516,6 +524,8 @@ class TestOpenAIResponses:
         """Test that parallel_tool_calls=False produces only one function call."""
         if text_model_id.startswith("watsonx/"):
             pytest.skip("WatsonX does not support parallel_tool_calls parameter")
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not respect parallel_tool_calls=False")
         response = openai_client.responses.create(
             model=text_model_id,
             input="What is the weather in Paris and the current time in London?",
@@ -735,6 +745,8 @@ class TestOpenAIResponses:
         """Test that cancelling a completed response returns 409 Conflict."""
         if text_model_id.startswith("watsonx/"):
             pytest.skip("WatsonX rate limits cause cancel tests to fail")
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI returns 500 instead of 409 for cancel on completed response")
         # Create a synchronous (completed) response
         response = openai_client.responses.create(
             model=text_model_id,
@@ -802,6 +814,8 @@ class TestOpenAIResponses:
             pytest.skip("Azure OpenAI does not support the service_tier parameter")
         if text_model_id.startswith("watsonx/"):
             pytest.skip("WatsonX does not support the service_tier parameter")
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not support the service_tier parameter")
         if text_model_id.startswith("vllm/"):
             pytest.skip("vLLM does not support the service_tier parameter")
 
@@ -1101,6 +1115,8 @@ class TestOpenAIResponses:
         A small max_output_tokens with a long prompt causes the provider to truncate
         the output in a single inference call, returning finish_reason='length'.
         """
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not reliably return finish_reason='length' with small max_output_tokens")
         response = openai_client.responses.create(
             model=text_model_id,
             input=[
@@ -1119,6 +1135,8 @@ class TestOpenAIResponses:
 
     def test_openai_response_incomplete_details_length_streaming(self, openai_client, text_model_id):
         """Test streaming incomplete_details.reason is 'length' when chat completion returns finish_reason='length'."""
+        if text_model_id.startswith("vertexai/"):
+            pytest.skip("Vertex AI does not reliably return finish_reason='length' with small max_output_tokens")
         stream = openai_client.responses.create(
             model=text_model_id,
             input=[

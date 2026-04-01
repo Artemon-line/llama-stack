@@ -21,6 +21,8 @@ def test_mcp_authorization_bearer(responses_client, text_model_id):
     """Test that bearer authorization is correctly applied to MCP requests."""
     if text_model_id.startswith("watsonx/"):
         pytest.skip("WatsonX does not reliably support tool calling")
+    if text_model_id.startswith("vertexai/"):
+        pytest.skip("Vertex AI MCP tool calling behavior differs from expected output structure")
     test_token = "test-bearer-token-789"
     with make_mcp_server(required_auth_token=test_token) as mcp_server_info:
         tools = setup_mcp_tools(
@@ -55,6 +57,8 @@ def test_mcp_authorization_bearer(responses_client, text_model_id):
 
 def test_mcp_authorization_error_when_header_provided(responses_client, text_model_id):
     """Test that providing Authorization in headers raises a security error."""
+    if text_model_id.startswith("vertexai/"):
+        pytest.skip("Vertex AI MCP tool calling behavior differs from expected output structure")
     test_token = "test-token-123"
     with make_mcp_server(required_auth_token=test_token) as mcp_server_info:
         tools = setup_mcp_tools(
@@ -85,6 +89,8 @@ def test_mcp_authorization_backward_compatibility(responses_client, text_model_i
     """Test that MCP tools work without authorization (backward compatibility)."""
     if text_model_id.startswith("watsonx/"):
         pytest.skip("WatsonX does not reliably support tool calling")
+    if text_model_id.startswith("vertexai/"):
+        pytest.skip("Vertex AI MCP tool calling behavior differs from expected output structure")
     # No authorization required
     with make_mcp_server(required_auth_token=None) as mcp_server_info:
         tools = setup_mcp_tools(

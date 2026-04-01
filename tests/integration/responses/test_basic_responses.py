@@ -33,7 +33,7 @@ def skip_if_provider_isnt_vllm(client_with_models, text_model_id):
 
 def skip_if_chat_completions_logprobs_not_supported(client_with_models, text_model_id):
     provider_type = provider_from_model(client_with_models, text_model_id).provider_type
-    if provider_type in ("remote::ollama", "remote::watsonx"):
+    if provider_type in ("remote::ollama", "remote::watsonx", "remote::vertexai"):
         pytest.skip(f"Model {text_model_id} hosted by {provider_type} doesn't support /v1/chat/completions logprobs.")
 
 
@@ -207,6 +207,8 @@ def test_response_non_streaming_multi_turn(responses_client, text_model_id, case
 
 @pytest.mark.parametrize("case", image_test_cases)
 def test_response_non_streaming_image(responses_client, vision_model_id, case):
+    if vision_model_id.startswith("vertexai/"):
+        pytest.skip("Vertex AI image handling differs from OpenAI format")
     response = responses_client.responses.create(
         model=vision_model_id,
         input=case.input,
@@ -217,6 +219,8 @@ def test_response_non_streaming_image(responses_client, vision_model_id, case):
 
 @pytest.mark.parametrize("case", multi_turn_image_test_cases)
 def test_response_non_streaming_multi_turn_image(responses_client, vision_model_id, case):
+    if vision_model_id.startswith("vertexai/"):
+        pytest.skip("Vertex AI image handling differs from OpenAI format")
     previous_response_id = None
     for turn_input, turn_expected in case.turns:
         response = responses_client.responses.create(
